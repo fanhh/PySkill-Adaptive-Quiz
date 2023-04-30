@@ -1,4 +1,4 @@
-# Python Practice Program
+# PySkill: Adaptive Quiz
 This program is designed to help students practice answering multiple-choice questions in Python. The program includes a set of easy and medium questions that are stored as objects in arrays, along with a scoring system that keeps track of the student's performance at different levels.
 
 # Prerequisites
