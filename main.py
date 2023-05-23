@@ -1,198 +1,124 @@
-import numpy
+import numpy as np
+from collections import defaultdict
 
-# Maybe hash Map??
-all_students = () #global variable so in all caps, snapescript, used to access old inputs of students
+# Questions database
 easy_questions = [
-    "What is 1+1? \nA: 2\nB: 4\nC: 12\nD:11\nAnswer:",
-    "What is pie in three decimals?\nA: 3.22\nB: 3.12\nC: 3.14\nAnswer:"
-    ]
+    {"prompt": "What is 1+1? \nA: 2\nB: 4\nC: 12\nD:11\nAnswer:", "answer": "A"},
+    {"prompt": "What is pie in three decimals?\nA: 3.22\nB: 3.12\nC: 3.14\nAnswer:", "answer": "C"}
+]
+
 medium_questions = [
-    "What is the captial of China?\nA: China\nB: Nanjing\nC: Jiangxie\nAnswer:",
-    "What is 2 times 3?\nA: 6\nB: 12\nAnswer:"
+    {"prompt": "What is the captial of China?\nA: China\nB: Nanjing\nC: Jiangxie\nAnswer:", "answer": "B"},
+    {"prompt": "What is 2 times 3?\nA: 6\nB: 12\nAnswer:", "answer": "A"}
 ]
-
-# Class object for quesion and answeer
-class questions:
-    def __init__(self, prompt, answer):
-        self.prompt = prompt
-        self.answer = answer
-
-# Store the questions the answers in an object in an array
-e_prmopts = [
-    questions(easy_questions[0], "A"),
-    questions(easy_questions[1], "C"),
-
-]
-
-m_prmopts = [
-    questions(medium_questions[0], "A"),
-    questions(medium_questions[1], "A")
-]
-
-# Keep track of the socre at different levels
-level_score = {}
-
-# practice set easy
-def p():
-    easy_score = 0
-    for prompt in e_prmopts:
-        e_answer = input(prompt.prompt)
-        if e_answer.upper() == prompt.answer:
-            easy_score += 1
-    level_score["easy"] = easy_score
-    return easy_score
-
-def p2():
-    m_score = 0
-    for m_prompt in m_prmopts:
-        m_answer = input(m_prompt.prompt)
-        if m_answer == m_prompt.answer:
-            m_score += 1
-    level_score["medium"] = m_score
-    return m_score
 
 class User:
+    def __init__(self, name):
+        self.name = name
 
-    class Teacher:
+class Teacher(User):
+    def __init__(self, name):
+        super().__init__(name)
+        self.students = []
 
-        def __init__(self, name, class, score):
-            self.name = name       #teacher's name
-            self.class = class    #dataset of student names and scores, as objects within a list
+    def add_student(self, student):
+        self.students.append(student)
 
+    def vis_all(self):
+        scores = [student.score for student in self.students]
+        print(np.histogram(scores))
 
-        def add_student(self, student_object):
-            if self.student in self.class == False:
-                all_students.append(student_object)
-            elif self.student in self.class == True:
+    def vis_one(self, student):
+        print(np.histogram(student.score))
 
-        def vis_all(self):
-            # All performance check
-            numpy.histogram(all_students)
-
-        def vis_one(self,score):
-            # Indidvual performance
-            numpy.histogram()
-
-        def change_problem(student):
-
-
-
-    class Student:
-        def __init__(self, name, index, level):
-            student.self = name #IDK
-            student.index = index #IDK
-            student.level = level #IDK
-
-        def pratice():
+    def change_problem(self, question_index, level, new_prompt, new_answer):
+        if level == "easy":
+            easy_questions[question_index] = {"prompt": new_prompt, "answer": new_answer}
+        else:
+            medium_questions[question_index] = {"prompt": new_prompt, "answer": new_answer}
 
 
+class Student(User):
+    def __init__(self, name):
+        super().__init__(name)
+        self.score = defaultdict(int)
 
+    def practice(self, level):
+        if level == "easy":
+            questions = easy_questions
+        elif level == "medium":
+            questions = medium_questions
+        else:
+            print("Invalid level!")
+            return
 
+        for question in questions:
+            answer = input(question['prompt'])
+            if answer.upper() == question['answer']:
+                self.score[level] += 1
 
-        def record_score():
+    def vis_self(self):
+        print(np.histogram(list(self.score.values())))
 
-        def vis_self(self,score)
-            #see own score and progress overtime
-            numpy.histogram()
 
 def main():
-    # Ask the user for their role
+    # Instantiate a Teacher object
+    teacher = Teacher("Prof. Snape")
+
+    # Infinite loop until the user decides to quit
     while True:
-        answer = input("Are you a teacher or student?: ")
-
-        # If the user is a teacher
-        if answer.lower() == "teacher":
-
-            # Reprompt the user if the answer don't match
+        user_type = input("Are you a teacher or student?: ").lower()
+        if user_type == "teacher":
             while True:
-                options = input("What would you like to do? \nA: Visualize overall perfromance from the students \nB: Change a problem \nC: Visualize indidvual perfromace\nAnswer:  ")
-                if options.upper() in ["A", "B", "C"]: # Check the user's answer
-                    break
+                option = input("What would you like to do? \nA: Visualize overall performance from the students "
+                               "\nB: Change a problem \nC: Visualize individual performance\nAnswer:  ").upper()
+                if option == "A":
+                    teacher.vis_all()
+                elif option == "B":
+                    question_index = int(input("Enter question index to change: "))
+                    level = input("Enter level (easy/medium) to change: ")
+                    new_prompt = input("Enter new prompt: ")
+                    new_answer = input("Enter new answer: ")
+                    teacher.change_problem(question_index, level, new_prompt, new_answer)
+                elif option == "C":
+                    student_name = input("Enter student name to visualize: ")
+                    for student in teacher.students:
+                        if student.name == student_name:
+                            teacher.vis_one(student)
+                            break
                 else:
-                    print("Answer must be A, B or C")
-                    # Make sure the user input the correct response
+                    print("Invalid option!")
 
-            # Uppercase the input
-            options = options.upper()
-
-            # If the user chose option A
-            if options == "A":
-                # Visualize the performance for all students
-                pass
-
-            # If the user chose option B
-            elif options== "B":
-                # Change a problem from the problem sets
-                pass
-            # IF the user chose option C
-            elif options == "C":
-                # Visualize indivudal performance
-                pass
-
-            # Ask the user if they would like to continue
-            while True:
-                des = input("Would you like to to continue?(Y/N): ")
-                if des.upper not in ["Y", "N","YES","NO"]
-                    print("Answer must be Y or N")
-                else:
+                cont = input
+                cont = input("Would you like to to continue?[Y/N]: ").upper()
+                if cont == "N":
                     break
 
-            # Break out the entire while loop
-            if des.upper() == "N":
-                break
+        elif user_type == "student":
+            name = input("Enter your name: ")
+            student = Student(name)
+            teacher.add_student(student)
 
-
-
-        # If the user is a student
-        elif answer.lower() == "student":
-
-            # Prompt the user with their choices
             while True:
-                choices = input("What would you like to do? \nA: Pratice \nB: See progress \nC: Visualize performace\nAnswer:")
-                if choices.upper() in ["A","B","C"]:
+                choices = input("What would you like to do? \nA: Practice \nB: See progress \nC: Visualize performance\nAnswer:").upper()
+                if choices == "A":
+                    level = input("Enter level (easy/medium): ")
+                    student.practice(level)
+                elif choices == "B":
+                    for level, score in student.score.items():
+                        print(f"Your score at {level} level is {score}")
+                elif choices == "C":
+                    student.vis_self()
+                else:
+                    print("Invalid choice!")
+
+                cont = input("Would you like to to continue?[Y/N]: ").upper()
+                if cont == "N":
                     break
-                else:
-                    print("Answer must be A, B or C")
-
-            # Uppercase the input
-            choices = choices.upper()
-
-            if choices == "A":
-                # Practice problems
-                if p() == 2:
-                    p2()
-                else:
-                    print("More practice!!")
-                    p()
-            elif choices == "B":
-                # See your progress
-                for k, v in level_score.items():
-                    print("Your level at " + k + " score is " + str(v))
-
-                # Visualize the student performance
-                pass
-
-            # Ask the user if they would like to continue
-            while True:
-                des = input("Would you like to to continue?[Y/N]: ")
-                if des.upper not in ["Y", "N","YES","NO"]
-                    print("Answer must be Y or N")
-                else:
-                    break
-
-            # Break out the while loop
-            if des.upper() == "N":
-                break
 
         else:
-            print("That's not a valid response. Please enter 'student' or 'teacher'. ")
-            # can just print things out in terminals to make visualization, don't have to import libraries
-            # or can use numpy from data science lab
-            # can make private ed posts with code-specific questions
-
-            # ask, have you used this before and if not, create a new variable
-            # can also have student object and add student ass object to a list that can be accessed from the teacher class
-
+            print("That's not a valid response. Please enter 'student' or 'teacher'.")
 
 if __name__ == "__main__":
     main()
+
